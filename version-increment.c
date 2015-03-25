@@ -2,7 +2,17 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <stddef.h>
+
+#include "utils.h"
+
+
 #define __USE_GNU
+
+
+
+int BUF_SIZE = 128;
+
 
 //set to 1 to increment major version when minor reached 100. i.e.:
 //1.99.0 + 0.01.0 = 1.100.0 = 2.0.0
@@ -53,60 +63,80 @@ void echo(char * s) {
 void usage(int argc, char** argv) {
   printf("Usage: %s [version(x.y.z)] [index-to-increment] [increment-by]\n", argv[0]);
   printf("If '-' is passed as the version number, the version will be read from stdin.\n");
-  exit(-1);
+  exit(EXIT_FAILURE);
 }
 
 int assign_vd_from_version_numbers(version_numbers * vd, version_numbers_t vn) {
-  vd->major = vn[0];
-  vd->minor = vn[1];
-  vd->patch = vn[2];
-
-  return(1);
+  memcpy((version_numbers_t*)vd, vn, sizeof(int)*3);
+  return(EXIT_SUCCESS);
 }
 
-int read_from_stdin(char * buf) {
-  int ret = scanf("%s", buf);
-  return ret;
-}
+
 
 int main(int argc, char ** argv)
 {
   version_numbers vd;
-
+  char filenameStr[BUF_SIZE];
+  char versionBuf[BUF_SIZE];
   
   if (argc == 1) {
     usage(argc,argv);
   }
 
   char * versionStr = argv[1];
+  //versionStr = malloc(BUF_SIZE);
+  //memcpy(versionStr, argv[1], BUF_SIZE);
   int indexToIncrement;
   int incrementBy;
+  int useVersionFromFile = 0;
 
-  
-  if (strcmp(versionStr, "-")==0) {
-    int BUF_SIZE = 128;
-    char buf[BUF_SIZE];
-    int cRead = read_from_stdin((char *)buf);
-    memmove(versionStr, buf, BUF_SIZE);
+  if (file_exists(versionStr)) {
+    memcpy((char*)filenameStr, versionStr, BUF_SIZE);
+    file_read(versionStr, (char *)versionBuf, 128);
+    useVersionFromFile = 1;
+    memmove(versionBuf, (char*)versionBuf, BUF_SIZE);
+    printf("%s\n", versionBuf);    
+    memmove(versionStr, versionBuf, BUF_SIZE);
+  } else {
+    
+    if (strcmp(versionStr, "-")==0) {
+      char buf[BUF_SIZE];
+      int cRead = read_from_stdin((char *)buf);
+      memmove(versionStr, (char*)buf, BUF_SIZE);
+    }
   }
+    switch(argc) {
+      case 2:
+        indexToIncrement   = 2;
+        incrementBy        = 1;
+        break;
+      case 3:
+        indexToIncrement   = 2;
+        incrementBy        = atoi(argv[3]);
+        break;
+      case 4:
+        indexToIncrement   = atoi(argv[2]);
+        incrementBy        = atoi(argv[3]);
+        break;
+      default:
+        //indexToIncrement = 2;
+        //incrementBy = 1;
+        break;
+    }
+    
+    
+    if (useVersionFromFile == 1) {
+    //  memmove((char*)versionStr, (char*)useVersionFromFile, BUF_SIZE);
+    }
   
-  switch(argc) {
-    case 2:
-      indexToIncrement   = 2;
-      incrementBy        = 1;
-      break;
-    case 3:
-      indexToIncrement   = 2;
-      incrementBy        = atoi(argv[2]);
-      break;
-    case 4:
-      indexToIncrement   = atoi(argv[2]);
-      incrementBy        = atoi(argv[3]);
-      break;
-    default:
-      printf("other arg count\n");
-  }
-
+/*
+  if (strcmp(argv[2], "major") == 0)
+    indexToIncrement = 0;
+  if (strcmp(argv[2], "minor") == 0)
+    indexToIncrement = 1;
+  if (strcmp(argv[2], "patch") == 0)
+    indexToIncrement = 2;  
+  */
   const char s[2] = ".";
   char *token;
   char *str1 = versionStr;
@@ -125,8 +155,23 @@ int main(int argc, char ** argv)
     index++;
   }
 
+  
   assign_vd_from_version_numbers(&vd, versionNumbers);
   increaseVersion(&vd, indexToIncrement, incrementBy);
-  printf("%d.%d.%d\n", (int)vd.major, (int)vd.minor, (int)vd.patch);
-  return(0);
+  
+  char vbuf[BUF_SIZE];
+  sprintf((char*)vbuf, "%d.%d.%d\n", (int)vd.major, (int)vd.minor, (int)vd.patch);
+  printf("%s", (char*)vbuf);
+  
+  //file_write((char*)filenameStr, (char*)vbuf);
+    if (useVersionFromFile == 1) {
+      FILE *fp;
+      fp = fopen(filenameStr, "w");
+      printf("%s\n", filenameStr);
+      fprintf(fp, "%s", (char*)vbuf);// "%d.%d.%d\n", (int)vd.major, (int)vd.minor, (int)vd.patch);
+      fclose(fp);
+    }
+  /**/
+
+  return(EXIT_SUCCESS);
 }

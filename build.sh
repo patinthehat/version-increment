@@ -34,7 +34,7 @@ function perform_action()
   fi
 }
 
-perform_action "Compiling" "done" "failed (code: %d)." $fname "$GCC_BIN -O1 $fname.c -o $BUILD_PATH/$fname"
+perform_action "Compiling" "done" "failed (code: %d)." $fname "$GCC_BIN -O1 utils.c $fname.c -o $BUILD_PATH/$fname"
 perform_action "Stripping" "done" "failed (code: %d)." $fname "strip --strip-all $BUILD_PATH/$fname"
 
 
