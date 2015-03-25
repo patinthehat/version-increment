@@ -6,24 +6,22 @@
 `version-increment` works with <a href="http://www.semver.org">semantic version</a> valid version strings.
 
 
-Syntax:
+Syntax:<br/>
 
-
-  `version-increment` [version-number] [index to increment] [increment by] - increments the specified field by specified amount.
-    - major is index 0
-    - minor is index 1
-    - patch is index 2
-
-	`version-increment` [version-number] [increment by] - increments patch level by specified number
-
-	`version-increment` [version-number]` - increments the patch level by 1
-
-	Specifying the version number as "-" will cause `version-increment` to read the version number from STDIN.
+  `version-increment` [version-number] [index to increment] [increment by] - increments the specified field by specified amount.<br/>
+1. major is index 0<br/>
+2. minor is index 1<br/>
+3. patch is index 2<br/>
 
 
 
-Some examples:
-	- `version-increment 1.0.0` outputs `1.0.1`
+	`version-increment` [version-number] [increment by] - increments patch level by specified number<br/>
+	`version-increment` [version-number]` - increments the patch level by 1<br/>
+	Specifying the version number as "-" will cause `version-increment` to read the version number from STDIN.<br/>
+<br/>
+
+Some examples:<br/>
+	- `version-increment 1.0.0` outputs `1.0.1`<br/>
 	- `version-increment 2.0.0 0 1` outputs `3.0.0`
 	
 ---
