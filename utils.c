@@ -46,7 +46,7 @@ int file_read(char* filename, char * buf, int size)
 
 
 int file_write(char* filename, char* data) {
-  FILE *fp;
+/*  FILE *fp;
   fp = fopen(filename, "w+");
 
   if (fp == NULL) {
@@ -54,6 +54,13 @@ int file_write(char* filename, char* data) {
     return FALSE;
   }
   fprintf(fp, "%s", data);
+  fclose(fp);
+  return TRUE;*/
+  FILE *fp;
+  fp = fopen(filename, "w");
+  if (fp == NULL)
+    return FALSE;
+  fprintf(fp, "%s", (char*)data);
   fclose(fp);
   return TRUE;
 }
