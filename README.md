@@ -42,12 +42,11 @@ Specifying the version number as "-" will cause `version-increment` to read the 
   `make install` will attempt to install the binaries into `~/scripts` *(this can be modified in the Makefile)*
 
 #### Old Installation Method ####
-<p style="color:gray;">
+
 _Once in the project folder, run `./build.sh` to compile the project._  
 _The compiled binary will be in `./build`._
 _You can also run `./build.sh install` and the script will attempt to install the binary into `/usr/bin`._
 _Finally, you can run `./build.sh archive` and the script will generate an archive ready for release in the `./build/` folder._
-</p>
 
 
 ---
