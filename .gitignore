@@ -2,6 +2,7 @@
 
 ## custom ##
 build/**
+changes.txt
 
 ### Eclipse ###
 *.pydevproject

@@ -9,7 +9,7 @@ THIS_PATH=$(realpath $0)
 GCC_BIN=$(which gcc)
 INSTALL_PATH=/usr/bin
 BUILD_PATH="./build"
-
+SRC_PATH=./src
 
 if [ -f "$BUILD_PATH" ]; then
   mkdir -p "$BUILD_PATH"
@@ -34,7 +34,7 @@ function perform_action()
   fi
 }
 
-perform_action "Compiling" "done" "failed (code: %d)." $fname "$GCC_BIN -O1 utils.c $fname.c -o $BUILD_PATH/$fname"
+perform_action "Compiling" "done" "failed (code: %d)." $fname "$GCC_BIN -O1 $SRC_PATH/utils.c $SRC_PATH/$fname.c -o $BUILD_PATH/$fname"
 perform_action "Stripping" "done" "failed (code: %d)." $fname "strip --strip-all $BUILD_PATH/$fname"
 
 

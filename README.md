@@ -19,11 +19,11 @@ Syntax:<br>
 	`version-increment` [version-number]` - increments the patch level by 1<br>
 	Specifying the version number as "-" will cause `version-increment` to read <br>
 	  the version number from STDIN.<br/>
-<br/>
+<br>
 
-Some examples:<br/>
-	- `version-increment 1.0.0` outputs `1.0.1`<br/>
-	- `version-increment 2.0.0 0 1` outputs `3.0.0`<br/>
+Some examples:<br>
+	- `version-increment 1.0.0` outputs `1.0.1`<br>
+	- `version-increment 2.0.0 0 1` outputs `3.0.0`<br>
 	- `printf "1.2.3" | build/version-increment -` outputs `1.2.4`<br>
 
 
@@ -45,6 +45,28 @@ install the binary into `/usr/bin`.
 
 Finally, you can run `./build.sh archive` and the script will generate
  an archive ready for release in the `./build/` folder.
+
+
+### Example Usage ###
+An example of using this utility would be automatically increasing a version number on every build.
+
+*Sample Makefile entry*
+
+```Makefile
+all: init myproject
+	@echo "\n* Compiled all targets for $(THISPROJECT) project."
+	@version-increment myproject-version.txt
+	@exit 0
+
+init:
+	@version-increment myproject-version.txt
+	@printf "#define VERSION = %s\n" `cat versiontest.txt` > version.h	
+	@exit 0
+
+```
+
+Here, each time `make` or `make all` is run, the various programs will be built, and then the version number will be increased.
+Assuming `version.h` is included in myproject.c, the version for myproject would be automatically updated upon every build.
 
 ---
 

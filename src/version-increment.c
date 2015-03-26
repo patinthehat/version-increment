@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "utils.h"
+#include "version.h"
 
 #define __USE_GNU
 
@@ -28,6 +29,7 @@ typedef struct application_settings_s {
   int verbose;
   int quiet;
   int length;
+  int output_cdef;
 } application_settings;
 
 typedef version_numbers* version_numbers_ptr;
@@ -64,8 +66,8 @@ void echo(char * s) {
 }
 
 void usage(int argc, char** argv) {
-  printf("Usage: %s [version(x.y.z)] [index-to-increment] [increment-by]\n",
-      argv[0]);
+  printf("Usage: %s v%s [version(x.y.z)] [index-to-increment] [increment-by]\n",
+      argv[0], VERSION);
   printf(
       "If '-' is passed as the version number, the version will be read from stdin.\n");
   exit (EXIT_FAILURE);
@@ -84,9 +86,11 @@ int process_flags(int argc, char **argv, application_settings* as){
   int c;
 
   opterr = 0;
-  while ((c = getopt (argc, argv, "vql:")) != -1)
-    switch (c)
-      {
+  while ((c = getopt (argc, argv, "dvql:")) != -1)
+    switch (c) {
+      case 'd':
+        as->output_cdef = 1;
+        break;
       case 'v':
         as->verbose = 1;
         break;
@@ -117,25 +121,41 @@ int process_flags(int argc, char **argv, application_settings* as){
   return 0;
 }
 
+void output_new_version(application_settings* as, version_numbers* vd, int useVersionFromFile, char* filenameStr) {
+  char vbuf[BUF_SIZE];
+  char fmtstr[BUF_SIZE];
+  if (as->output_cdef == 1) {
+    sprintf((char*)fmtstr,  "#define VERSION = %s", "%d.%d.%d\n");
+  } else {
+    sprintf((char*)fmtstr,  "%s", "%d.%d.%d\n");
+  }
+  sprintf((char*) vbuf, (char*)fmtstr, (int) vd->major, (int) vd->minor, (int) vd->patch);
+  printf("%s", (char*) vbuf);
+
+  if (useVersionFromFile == 1) {
+    file_write((char*) filenameStr, (char*) vbuf);
+  }
+}
+
 
 int main(int argc, char ** argv) {
   version_numbers vd;
   char filenameStr[BUF_SIZE];
   char versionBuf[BUF_SIZE];
 
-  //application_settings as;
-  //memset(&as, 0, sizeof(application_settings));
+  application_settings as;
+  zero_fill(&as, sizeof(application_settings));
 
   if (argc == 1) {
     usage(argc, argv);
   }
 
- // process_flags(argc, argv, &as);
+  process_flags(argc, argv, &as);
 
   char * versionStr = argv[1];
   //versionStr = malloc(BUF_SIZE);
   //memcpy(versionStr, argv[1], BUF_SIZE);
-  int indexToIncrement;
+  int indexToIncrement = -1;
   int incrementBy;
   int useVersionFromFile = 0;
 
@@ -155,17 +175,29 @@ int main(int argc, char ** argv) {
     }
   }
 
+  /*
+  if (strcmp(argv[2], "major")==0)
+    indexToIncrement = 0;
+  if (strcmp(argv[2], "minor")==0)
+    indexToIncrement = 1;
+  if (strcmp(argv[2], "patch")==0)
+    indexToIncrement = 2;
+*/
+
   switch (argc) {
   case 2:
-    indexToIncrement = 2;
+    //if (indexToIncrement == -1)
+      indexToIncrement = 2;
     incrementBy = 1;
     break;
   case 3:
-    indexToIncrement = 2;
+   /// if (indexToIncrement == -1)
+      indexToIncrement = 2;
     incrementBy = atoi(argv[3]);
     break;
   case 4:
-    indexToIncrement = atoi(argv[2]);
+   // if (indexToIncrement == -1)
+      indexToIncrement = atoi(argv[2]);
     incrementBy = atoi(argv[3]);
     break;
   default:
@@ -206,20 +238,10 @@ int main(int argc, char ** argv) {
   assign_vd_from_version_numbers(&vd, versionNumbers);
   increaseVersion(&vd, indexToIncrement, incrementBy);
 
-  char vbuf[BUF_SIZE];
-  sprintf((char*) vbuf, "%d.%d.%d\n", (int) vd.major, (int) vd.minor, (int) vd.patch);
-  printf("%s", (char*) vbuf);
+  output_new_version(&as, &vd, useVersionFromFile, filenameStr);
 
   //file_write((char*)filenameStr, (char*)vbuf);
-  if (useVersionFromFile == 1) {
-    file_write((char*) filenameStr, (char*) vbuf);
-    /*FILE *fp;
-     fp = fopen(filenameStr, "w");
-     printf("%s\n", filenameStr);
-     fprintf(fp, "%s", (char*)vbuf);// "%d.%d.%d\n", (int)vd.major, (int)vd.minor, (int)vd.patch);
-     fclose(fp);*/
-    ;
-  }
+
   /**/
 
   return (EXIT_SUCCESS);

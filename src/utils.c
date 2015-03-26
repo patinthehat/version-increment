@@ -70,3 +70,33 @@ int read_from_stdin(char * buf) {
   int ret = scanf("%s", buf);
   return ret;
 }
+
+
+int str_is_integer(char * input)
+{
+  while (*input) {
+    if (!isdigit(*input))
+      return FALSE;
+    input++;
+  }
+  return TRUE;
+}
+
+int str_is_string(char * input)
+{
+  while (*input) {
+    if (!isalpha(*input))
+      return FALSE;
+    input++;
+  }
+  return TRUE;
+}
+
+int strings_are_equal(char* s1, char* s2)
+{
+  return (strcmp(s1,s2)==0);
+}
+
+void zero_fill(void* obj, int size) {
+  memset(obj, 0, size);
+}
